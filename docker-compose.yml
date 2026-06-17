@@ -1,25 +1,28 @@
 services:
-  todo-dev:
-    container_name: todo-dev
+
+  server:
+    container_name: dev-backend
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
       target: dev
-    
     ports:
-      - 5173:5173
-    
+    - 5000:5000
+    networks:
+      - todo-net
+  mongo:
+    image: mongo:7
+    container_name: node-todo-mongo
+    ports:
+      - "27017:27017"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - mongo-data:/data/db
+    networks:
+      - todo-net
+      
+volumes:
+  mongo-data:
 
-  todo-prod:
-    container_name: todo-prod
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: prod
-    
-    ports:
-      - 80:80
-    
+networks:
+  todo-net:
+    driver: bridge

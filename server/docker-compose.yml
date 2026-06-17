@@ -1,0 +1,10 @@
+services:
+
+  server:
+    container_name: build
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+    - 5000:5000

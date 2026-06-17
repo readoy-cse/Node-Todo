@@ -1,0 +1,25 @@
+services:
+  todo-dev:
+    container_name: todo-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    
+    ports:
+      - 5173:5173
+    
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  todo-prod:
+    container_name: todo-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    
+    ports:
+      - 80:80
+    
