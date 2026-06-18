@@ -1,32 +1,16 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: todo-backend-service
-  labels:
-    app: todo-app
-  
-spec:
-  selector:
-    app: todo-app
-  type: NodePort
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
-      nodePort: 30050
-
 ---
+# Frontend Services (NodePort)
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-frontend-service
+  name: todo-svc-frontend
   labels:
-    app: todo-app
-  
+    app: todo-frontend
+
 spec:
-  selector:
-    app: todo-app
   type: NodePort
+  selector:
+    app: todo-frontend
   ports:
     - protocol: TCP
       port: 80
@@ -34,18 +18,34 @@ spec:
       nodePort: 30080
 
 ---
+# Backend Services (ClusterIP)
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-db-service
-  labels:
-    app: todo-app
-  
+  name: todo-svc-backend
+
 spec:
-  selector:
-    app: todo-app
   type: ClusterIP
+  selector:
+    app: todo-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+---
+# MongoDB Services (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-svc-mongo
+
+spec:
+  type: ClusterIP
+  selector:
+    app: todo-mongo
   ports:
     - protocol: TCP
       port: 27017
-      targetPort: 27017
+      targetPort: 27017 
+      

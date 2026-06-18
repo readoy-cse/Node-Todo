@@ -8,42 +8,58 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-const mongoUri = process.env.MONGODB_URI || "mongodb://192.168.0.195:27017/node_todo";
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  `${process.env.CLIENT_URL}`,
-  "http://localhost:5173",
-  "http://0.0.0.0:80",
-].filter(Boolean);
-const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const mongoUri =
+  process.env.MONGODB_URI ||
+  "mongodb://192.168.0.195:27017/node_todo";
 
+/**
+ * OPEN CORS CONFIG (ALLOW ALL ORIGINS)
+ */
 app.use(
   cors({
-    origin: true,
-    credentials: true,
+    origin: "*",        // allow all domains
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// handle preflight requests explicitly
+app.options("*", cors());
+
 app.use(express.json());
 
+/**
+ * HEALTH CHECK
+ */
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+/**
+ * ROUTES
+ */
 app.use("/api/todos", todoRoutes);
 
+/**
+ * ERROR HANDLER
+ */
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({
-    message: err.message || "Something went wrong"
+    message: err.message || "Something went wrong",
   });
 });
 
+/**
+ * START SERVER
+ */
 async function start() {
   try {
     await mongoose.connect(mongoUri);
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
+
+    app.listen(port, "0.0.0.0", () => {
+      console.log(`Server running on port ${port}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error.message);

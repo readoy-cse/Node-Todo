@@ -1,51 +1,91 @@
+---
+# Frontend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-deployment
+  name: todo-frontend
   labels:
-    app: todo-app
+    app: todo-frontend
 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: todo-app
-
+      app: todo-frontend
+  
   template:
     metadata:
       labels:
-        app: todo-app
-
+        app: todo-frontend
+    
     spec:
       containers:
-
       - name: todo-client
         image: sakibtalukqder/todo-client-prod:latest
         ports:
-          - containerPort: 80
+        - containerPort: 80
         env:
-        - name: VITE_API_URL
-          value: "http://todo-backend-service:5000/api"
-      
+        - name: REACT_APP_BACKEND_URL
+          value: "http://todo-backend:5000"
+
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend
+  labels:
+    app: todo-backend
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-backend
+  
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    
+    spec:
+      containers:
       - name: todo-server
         image: sakibtalukqder/todo-server-prod:latest
         ports:
-          - containerPort: 5000
+        - containerPort: 5000
         env:
+        - name: MONGO_URI
+          value: "mongodb://todo-mongo:27017/todo"
         - name: PORT
           value: "5000"
-        - name: MONGODB_URI
-          value: "mongodb://todo-db-service:27017/node_todo"
-        - name: CLIENT_URL
-          value: "http://todo-frontend-service:80"
-      
-      - name: todo-db
+
+---
+#  Database Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-mongo
+  labels:
+    app: todo-mongo
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-mongo
+  
+  template:
+    metadata:
+      labels:
+        app: todo-mongo
+    
+    spec:
+      containers:
+      - name: mongo
         image: mongo:latest
         ports:
-          - containerPort: 27017
-
-
-
-# PORT=5000
-# MONGODB_URI=mongodb://localhost:27017/node_todo
-# CLIENT_URL=http://localhost:5173
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
