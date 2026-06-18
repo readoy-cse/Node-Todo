@@ -24,9 +24,6 @@ spec:
         image: sakibtalukqder/todo-client-prod:latest
         ports:
         - containerPort: 80
-        env:
-        - name: REACT_APP_BACKEND_URL
-          value: "http://todo-backend:5000"
 
 ---
 # Backend Deployment
@@ -55,8 +52,8 @@ spec:
         ports:
         - containerPort: 5000
         env:
-        - name: MONGO_URI
-          value: "mongodb://todo-mongo:27017/todo"
+        - name: MONGODB_URI
+          value: "mongodb://todo-svc-mongo:27017/node_todo"
         - name: PORT
           value: "5000"
 
@@ -86,6 +83,3 @@ spec:
         image: mongo:latest
         ports:
         - containerPort: 27017
-        volumeMounts:
-        - name: mongo-data
-          mountPath: /data/db

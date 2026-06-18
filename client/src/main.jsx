@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+const API_URL = "http://192.168.32.104:30090/api";
+// const API_URL = "todo-svc-backend:5000/api";
 
 function App() {
   const [todos, setTodos] = useState([]);

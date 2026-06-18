@@ -25,13 +25,14 @@ metadata:
   name: todo-svc-backend
 
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: todo-backend
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 5000
+      nodePort: 30090
 
 ---
 # MongoDB Services (ClusterIP)

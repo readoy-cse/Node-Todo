@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 const mongoUri =
   process.env.MONGODB_URI ||
-  "mongodb://192.168.0.195:27017/node_todo";
+  "mongodb://localhost:27017/node_todo";
 
 /**
  * OPEN CORS CONFIG (ALLOW ALL ORIGINS)
