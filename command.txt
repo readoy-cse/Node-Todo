@@ -1,5 +1,7 @@
 cd client
 docker build --target prod -t todo-client-prod .
-docekr run --rm -p 80:80 todo-client-prod
+docker tag todo-client-prod:latest sakibtalukqder/todo-client-prod:latest
+docker push sakibtalukqder/todo-client-prod:latest
 
 cd server
+docker build --target prod -t todo-server-prod .

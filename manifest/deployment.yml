@@ -20,12 +20,15 @@ spec:
       containers:
 
       - name: todo-client
-        image: todo-client-prod:latest
+        image: sakibtalukqder/todo-client-prod:latest
         ports:
           - containerPort: 80
+        env:
+        - name: VITE_API_URL
+          value: "http://todo-backend-service:5000/api"
       
       - name: todo-server
-        image: todo-server-prod:latest
+        image: sakibtalukqder/todo-server-prod:latest
         ports:
           - containerPort: 5000
         env:

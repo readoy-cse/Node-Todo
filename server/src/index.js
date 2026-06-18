@@ -9,28 +9,19 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 const mongoUri = process.env.MONGODB_URI || "mongodb://192.168.0.195:27017/node_todo";
+
 const allowedOrigins = [
   process.env.CLIENT_URL,
   `${process.env.CLIENT_URL}`,
   "http://localhost:5173",
-  "http://0.0.0.0:5173",
+  "http://0.0.0.0:80",
 ].filter(Boolean);
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (
-        !origin ||
-        origin === "null" ||
-        allowedOrigins.includes(origin) ||
-        localOriginPattern.test(origin)
-      ) {
-        return callback(null, true);
-      }
-
-      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
-    }
+    origin: true,
+    credentials: true,
   })
 );
 app.use(express.json());
