@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} Building Server
 on: 
   push:
     paths:
-      - ./server/*
+      - server/**
 
 jobs:
   build-server:
@@ -30,5 +30,5 @@ jobs:
         tags: ${{ secrets.DOCKER_USERNAME }}/todo-server-prod:latest
     
     - name: Test
-      run: docker ps
+      run: docker images
 
