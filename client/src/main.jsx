@@ -9,22 +9,29 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   const filteredTodos = useMemo(() => {
-    if (filter === "active") {
-      return todos.filter((todo) => !todo.completed);
-    }
+    const normalizedSearch = search.trim().toLowerCase();
 
-    if (filter === "completed") {
-      return todos.filter((todo) => todo.completed);
-    }
+    return todos.filter((todo) => {
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "active" && !todo.completed) ||
+        (filter === "completed" && todo.completed);
+      const matchesSearch = todo.title.toLowerCase().includes(normalizedSearch);
 
-    return todos;
-  }, [filter, todos]);
+      return matchesFilter && matchesSearch;
+    });
+  }, [filter, search, todos]);
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
+  const completedCount = todos.length - remainingCount;
+  const progress = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
 
   useEffect(() => {
     fetchTodos();
@@ -99,6 +106,44 @@ function App() {
     }
   }
 
+  function startEditing(todo) {
+    setEditingId(todo._id);
+    setEditingTitle(todo.title);
+  }
+
+  function cancelEditing() {
+    setEditingId(null);
+    setEditingTitle("");
+  }
+
+  async function saveTodoTitle(todo) {
+    const trimmedTitle = editingTitle.trim();
+
+    if (!trimmedTitle) {
+      setError("Todo title cannot be empty");
+      return;
+    }
+
+    if (trimmedTitle === todo.title) {
+      cancelEditing();
+      return;
+    }
+
+    try {
+      setError("");
+      const updatedTodo = await request(`/todos/${todo._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ title: trimmedTitle })
+      });
+      setTodos((currentTodos) =>
+        currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
+      );
+      cancelEditing();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function deleteTodo(id) {
     try {
       setError("");
@@ -106,6 +151,28 @@ function App() {
         method: "DELETE"
       });
       setTodos((currentTodos) => currentTodos.filter((todo) => todo._id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function clearCompleted() {
+    const completedTodos = todos.filter((todo) => todo.completed);
+
+    if (!completedTodos.length) {
+      return;
+    }
+
+    try {
+      setError("");
+      await Promise.all(
+        completedTodos.map((todo) =>
+          request(`/todos/${todo._id}`, {
+            method: "DELETE"
+          })
+        )
+      );
+      setTodos((currentTodos) => currentTodos.filter((todo) => !todo.completed));
     } catch (err) {
       setError(err.message);
     }
@@ -122,6 +189,16 @@ function App() {
           <span className="counter">{remainingCount} left</span>
         </div>
 
+        <div className="progress-block" aria-label="Todo progress">
+          <div className="progress-copy">
+            <span>{completedCount} done</span>
+            <span>{progress}% complete</span>
+          </div>
+          <div className="progress-track">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+
         <form className="todo-form" onSubmit={addTodo}>
           <input
             type="text"
@@ -134,18 +211,37 @@ function App() {
           <button type="submit">Add</button>
         </form>
 
-        <div className="filters" aria-label="Todo filters">
-          {["all", "active", "completed"].map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={filter === name ? "active" : ""}
-              onClick={() => setFilter(name)}
-            >
-              {name}
-            </button>
-          ))}
+        <div className="toolbar">
+          <div className="filters" aria-label="Todo filters">
+            {["all", "active", "completed"].map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={filter === name ? "active" : ""}
+                onClick={() => setFilter(name)}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+          <button
+            className="clear-button"
+            type="button"
+            onClick={clearCompleted}
+            disabled={!completedCount}
+          >
+            Clear done
+          </button>
         </div>
+
+        <input
+          className="search-input"
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search tasks"
+          aria-label="Search todos"
+        />
 
         {error && <p className="error">{error}</p>}
 
@@ -155,17 +251,53 @@ function App() {
           ) : filteredTodos.length ? (
             filteredTodos.map((todo) => (
               <article className="todo-item" key={todo._id}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={todo.completed}
-                    onChange={() => toggleTodo(todo)}
-                  />
-                  <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
-                </label>
-                <button type="button" onClick={() => deleteTodo(todo._id)}>
-                  Delete
-                </button>
+                {editingId === todo._id ? (
+                  <form
+                    className="edit-form"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      saveTodoTitle(todo);
+                    }}
+                  >
+                    <input
+                      type="text"
+                      value={editingTitle}
+                      onChange={(event) => setEditingTitle(event.target.value)}
+                      maxLength="120"
+                      aria-label="Edit todo title"
+                      autoFocus
+                    />
+                    <div className="item-actions">
+                      <button type="submit">Save</button>
+                      <button className="ghost-button" type="button" onClick={cancelEditing}>
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={todo.completed}
+                        onChange={() => toggleTodo(todo)}
+                      />
+                      <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
+                    </label>
+                    <div className="item-actions">
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={() => startEditing(todo)}
+                      >
+                        Edit
+                      </button>
+                      <button type="button" onClick={() => deleteTodo(todo._id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
               </article>
             ))
           ) : (
