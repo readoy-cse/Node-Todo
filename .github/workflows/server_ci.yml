@@ -16,7 +16,7 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v4
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
+        username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Set up Docker Buildx
@@ -27,7 +27,7 @@ jobs:
       with:
         context: ./server
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/todo-server-prod:latest
+        tags: ${{ secrets.DOCKER_USER }}/todo-server-prod:latest
     
     - name: Test
       run: docker images
