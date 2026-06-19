@@ -1,0 +1,34 @@
+name: Build and Push Server Image
+run-name: ${{ github.actor }} Building Server
+
+on: 
+  push:
+    paths:
+      - ./server
+
+jobs:
+  build-server:
+    
+    runs-on: ubuntu-latest
+    steps: 
+    - uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Build and push
+      uses: docker/build-push-action@v7
+      with:
+        context: ./server
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/todo-server-prod:latest
+    
+    - name: Test
+      run: docker ps
+
