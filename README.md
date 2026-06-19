@@ -6,6 +6,7 @@ A small MERN todo app for DevOps practice. It has a React/Vite client, Express A
 
 - Add, edit, complete, delete, search, and filter todos.
 - Clear all completed tasks.
+- Track time spent on each todo with start, stop, and reset controls.
 - Progress summary for completed work.
 - REST API with `/api/health` and `/api/todos`.
 - Docker-ready client, server, and MongoDB setup.

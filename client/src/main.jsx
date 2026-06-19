@@ -12,6 +12,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [now, setNow] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -32,10 +33,41 @@ function App() {
   const remainingCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - remainingCount;
   const progress = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
+  const totalTrackedSeconds = todos.reduce((total, todo) => total + getTrackedSeconds(todo), 0);
 
   useEffect(() => {
     fetchTodos();
   }, []);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  function getTrackedSeconds(todo) {
+    const savedSeconds = todo.timeSpentSeconds || 0;
+
+    if (!todo.timerStartedAt) {
+      return savedSeconds;
+    }
+
+    return savedSeconds + Math.max(0, Math.floor((now - new Date(todo.timerStartedAt).getTime()) / 1000));
+  }
+
+  function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours) {
+      return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
+    }
+
+    return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+  }
 
   async function request(path, options = {}) {
     const response = await fetch(`${API_URL}${path}`, {
@@ -97,6 +129,21 @@ function App() {
       const updatedTodo = await request(`/todos/${todo._id}`, {
         method: "PATCH",
         body: JSON.stringify({ completed: !todo.completed })
+      });
+      setTodos((currentTodos) =>
+        currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function updateTimer(todo, timerAction) {
+    try {
+      setError("");
+      const updatedTodo = await request(`/todos/${todo._id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ timerAction })
       });
       setTodos((currentTodos) =>
         currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
@@ -199,6 +246,11 @@ function App() {
           </div>
         </div>
 
+        <div className="time-summary">
+          <span>Total tracked</span>
+          <strong>{formatTime(totalTrackedSeconds)}</strong>
+        </div>
+
         <form className="todo-form" onSubmit={addTodo}>
           <input
             type="text"
@@ -284,6 +336,27 @@ function App() {
                       />
                       <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
                     </label>
+                    <div className="time-row">
+                      <span className={todo.timerStartedAt ? "time-badge running" : "time-badge"}>
+                        {formatTime(getTrackedSeconds(todo))}
+                      </span>
+                      <button
+                        className={todo.timerStartedAt ? "pause-button" : "start-button"}
+                        type="button"
+                        onClick={() => updateTimer(todo, todo.timerStartedAt ? "stop" : "start")}
+                        disabled={todo.completed && !todo.timerStartedAt}
+                      >
+                        {todo.timerStartedAt ? "Stop" : "Start"}
+                      </button>
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={() => updateTimer(todo, "reset")}
+                        disabled={!getTrackedSeconds(todo)}
+                      >
+                        Reset
+                      </button>
+                    </div>
                     <div className="item-actions">
                       <button
                         className="ghost-button"
