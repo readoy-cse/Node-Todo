@@ -91,13 +91,13 @@ h1 {
 }
 
 .todo-form input:focus {
-  border-color: #2563eb;
+  border-color: #57e415;
   outline: 3px solid rgba(37, 99, 235, 0.16);
 }
 
 .todo-form button,
 .todo-item button {
-  background: #2563eb;
+  background: #57e415;
   border-radius: 6px;
   color: #ffffff;
   font-weight: 700;
