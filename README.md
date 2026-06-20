@@ -2,6 +2,51 @@
 
 A small MERN todo app for DevOps practice. It has a React/Vite client, Express API, MongoDB storage, Docker files, and Kubernetes manifests.
 
+## DevOps / CI-CD Process
+
+This project uses a simple CI/CD flow:
+
+1. A developer changes the code and pushes it to GitHub.
+2. GitHub Actions checks which folder changed:
+   - If `client/**` changes, `.github/workflows/client_ci.yml` runs.
+   - If `server/**` changes, `.github/workflows/server_ci.yml` runs.
+3. The workflow logs in to Docker Hub.
+4. Docker Buildx is set up, then the Docker image is built.
+5. If the build succeeds, the image is pushed to Docker Hub:
+   - Client image: `DOCKER_USER/todo-client-prod:latest`
+   - Server image: `DOCKER_USER/todo-server-prod:latest`
+6. The Kubernetes manifests in `manifest/deployment.yml` and `manifest/services.yml` can be used to run the app in a cluster.
+
+Short version:
+
+```text
+Code Push -> GitHub Actions -> Docker Build -> Docker Hub Push -> Kubernetes Deploy
+```
+
+Important CI/CD parts:
+
+| Part | Purpose |
+| --- | --- |
+| GitHub Actions | Runs the automated build workflows |
+| Dockerfile | Builds the client and server images |
+| Docker Hub | Stores the production images |
+| Kubernetes Deployment | Runs the client, server, and MongoDB pods |
+| Kubernetes Service | Manages network access for the app |
+
+Required GitHub Secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `DOCKER_USER` | Docker Hub username |
+| `DOCKER_PASSWORD` | Docker Hub password or access token |
+
+Note: The current workflow automatically builds images and pushes them to Docker Hub. The Kubernetes deployment step is currently manual:
+
+```bash
+kubectl apply -f manifest/deployment.yml
+kubectl apply -f manifest/services.yml
+```
+
 ## Features
 
 - Add, edit, complete, delete, search, and filter todos.
@@ -78,51 +123,6 @@ Remove containers and MongoDB volume:
 
 ```bash
 docker compose down -v
-```
-
-## DevOps / CI-CD Process
-
-Ei project-er DevOps flow simple vabe:
-
-1. Developer code change kore GitHub-e push kore.
-2. GitHub Actions check kore kon folder change hoyeche:
-   - `client/**` change hole `.github/workflows/client_ci.yml` run hoy.
-   - `server/**` change hole `.github/workflows/server_ci.yml` run hoy.
-3. Workflow Docker Hub-e login kore.
-4. Docker Buildx setup hoy, tarpor Docker image build hoy.
-5. Build successful hole image Docker Hub-e push hoy:
-   - Client image: `DOCKER_USER/todo-client-prod:latest`
-   - Server image: `DOCKER_USER/todo-server-prod:latest`
-6. Kubernetes cluster-e app run korar jonno `manifest/deployment.yml` and `manifest/services.yml` use kora hoy.
-
-Short version:
-
-```text
-Code Push -> GitHub Actions -> Docker Build -> Docker Hub Push -> Kubernetes Deploy
-```
-
-Important CI/CD parts:
-
-| Part | Kaj |
-| --- | --- |
-| GitHub Actions | Automatic build workflow run kore |
-| Dockerfile | Client and server image banay |
-| Docker Hub | Production image store kore |
-| Kubernetes Deployment | Client, server, and MongoDB pod run kore |
-| Kubernetes Service | App-er network access manage kore |
-
-Required GitHub Secrets:
-
-| Secret | Purpose |
-| --- | --- |
-| `DOCKER_USER` | Docker Hub username |
-| `DOCKER_PASSWORD` | Docker Hub password or access token |
-
-Note: Current workflow image build and Docker Hub push porjonto automatic. Kubernetes deploy step manually kora jay:
-
-```bash
-kubectl apply -f manifest/deployment.yml
-kubectl apply -f manifest/services.yml
 ```
 
 ## API
