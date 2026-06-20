@@ -6,6 +6,8 @@ A small MERN todo app for DevOps practice. It has a React/Vite client, Express A
 
 This project uses a simple CI/CD flow:
 
+![Dashboard](./ci-cd-plan.png)
+
 1. A developer changes the code and pushes it to GitHub.
 2. GitHub Actions checks which folder changed:
    - If `client/**` changes, `.github/workflows/client_ci.yml` runs.
