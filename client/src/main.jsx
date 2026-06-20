@@ -465,17 +465,15 @@ function App() {
         </section>
       </section>
 
-      <footer className="dashboard-footer">
-        <details className="operator-details">
-          <summary>
-            <span>Operator diagnostics</span>
-            <strong>Pod and node metadata</strong>
-          </summary>
-          <section className="status-strip" aria-label="Operator runtime summary">
-            <RuntimePanel title="Frontend Runtime" data={frontendRuntime} />
-            <RuntimePanel title="Backend Runtime" data={backendRuntime} />
-          </section>
-        </details>
+      <footer className="dashboard-footer" aria-label="Operator diagnostics">
+        <div className="footer-heading">
+          <span>Operator diagnostics</span>
+          <strong>Pod and node metadata</strong>
+        </div>
+        <section className="status-strip">
+          <RuntimePanel title="Frontend Runtime" data={frontendRuntime} />
+          <RuntimePanel title="Backend Runtime" data={backendRuntime} />
+        </section>
       </footer>
     </main>
   );
