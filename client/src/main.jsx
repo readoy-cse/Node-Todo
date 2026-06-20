@@ -282,18 +282,24 @@ function App() {
     <main className="dashboard-shell">
       <header className="dashboard-header">
         <div>
-          <p className="eyebrow">React + Express + MongoDB</p>
-          <h1>Node Todo Operations</h1>
+          <p className="eyebrow">Task Dashboard</p>
+          <h1>Node Todo</h1>
         </div>
         <button className="refresh-button" type="button" onClick={() => Promise.all([fetchTodos(), fetchRuntime()])}>
           Refresh
         </button>
       </header>
 
-      <section className="status-strip" aria-label="Runtime summary">
-        <RuntimePanel title="Frontend Runtime" data={frontendRuntime} />
-        <RuntimePanel title="Backend Runtime" data={backendRuntime} />
-      </section>
+      <details className="operator-details">
+        <summary>
+          <span>Operator diagnostics</span>
+          <strong>Pod and node metadata</strong>
+        </summary>
+        <section className="status-strip" aria-label="Operator runtime summary">
+          <RuntimePanel title="Frontend Runtime" data={frontendRuntime} />
+          <RuntimePanel title="Backend Runtime" data={backendRuntime} />
+        </section>
+      </details>
 
       <section className="metrics-grid" aria-label="Todo metrics">
         <div>
