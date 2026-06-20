@@ -31,7 +31,7 @@ button:disabled {
 
 .dashboard-shell {
   min-height: 100vh;
-  padding: 28px;
+  padding: 22px;
 }
 
 .dashboard-header {
@@ -40,9 +40,9 @@ button:disabled {
   display: flex;
   gap: 16px;
   justify-content: space-between;
-  margin: 0 auto 20px;
-  max-width: 1360px;
-  padding-bottom: 18px;
+  margin: 0 auto 16px;
+  max-width: 1180px;
+  padding-bottom: 14px;
 }
 
 .eyebrow {
@@ -55,7 +55,7 @@ button:disabled {
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: 2.45rem;
   line-height: 1;
   margin: 0;
 }
@@ -68,16 +68,17 @@ h1 {
   border-radius: 6px;
   color: #ffffff;
   font-weight: 800;
-  min-height: 42px;
-  padding: 0 16px;
+  min-height: 38px;
+  padding: 0 14px;
 }
 
 .status-strip,
 .metrics-grid,
 .workspace-grid,
+.dashboard-footer,
 .operator-details {
   margin: 0 auto;
-  max-width: 1360px;
+  max-width: 1180px;
 }
 
 .status-strip {
@@ -150,7 +151,7 @@ h1 {
 .runtime-panel,
 .control-panel,
 .task-panel {
-  padding: 18px;
+  padding: 14px;
 }
 
 .panel-heading {
@@ -235,7 +236,7 @@ h1 {
 
 .metrics-grid > div {
   min-height: 104px;
-  padding: 16px;
+  padding: 13px 14px;
 }
 
 .metrics-grid span {
@@ -243,14 +244,14 @@ h1 {
   display: block;
   font-size: 0.78rem;
   font-weight: 900;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   text-transform: uppercase;
 }
 
 .metrics-grid strong {
   color: #111a28;
   display: block;
-  font-size: 2rem;
+  font-size: 1.65rem;
   line-height: 1;
   overflow-wrap: anywhere;
 }
@@ -259,14 +260,14 @@ h1 {
   align-items: start;
   display: grid;
   gap: 12px;
-  grid-template-columns: 360px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
 }
 
 .progress-track {
   background: #dfe7ec;
   border-radius: 999px;
   height: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   overflow: hidden;
 }
 
@@ -281,7 +282,7 @@ h1 {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr auto;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .todo-form input,
@@ -292,7 +293,7 @@ h1 {
   border-radius: 6px;
   color: #18212f;
   min-width: 0;
-  padding: 12px 13px;
+  padding: 10px 12px;
 }
 
 .todo-form input:focus,
@@ -303,7 +304,7 @@ h1 {
 }
 
 .search-input {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   width: 100%;
 }
 
@@ -311,7 +312,7 @@ h1 {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(3, 1fr);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .filters button {
@@ -320,7 +321,7 @@ h1 {
   border-radius: 6px;
   color: #354254;
   font-weight: 800;
-  min-height: 40px;
+  min-height: 36px;
   text-transform: capitalize;
 }
 
@@ -357,8 +358,8 @@ h1 {
   display: grid;
   gap: 12px;
   grid-template-columns: minmax(220px, 1fr) 100px 110px minmax(300px, auto);
-  min-height: 64px;
-  padding: 10px 12px;
+  min-height: 56px;
+  padding: 8px 10px;
 }
 
 .task-row:first-child {
@@ -370,8 +371,12 @@ h1 {
   color: #586778;
   font-size: 0.76rem;
   font-weight: 900;
-  min-height: 42px;
+  min-height: 38px;
   text-transform: uppercase;
+}
+
+.dashboard-footer {
+  margin-top: 12px;
 }
 
 .task-title {
