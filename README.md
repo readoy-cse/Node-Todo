@@ -80,6 +80,51 @@ Remove containers and MongoDB volume:
 docker compose down -v
 ```
 
+## DevOps / CI-CD Process
+
+Ei project-er DevOps flow simple vabe:
+
+1. Developer code change kore GitHub-e push kore.
+2. GitHub Actions check kore kon folder change hoyeche:
+   - `client/**` change hole `.github/workflows/client_ci.yml` run hoy.
+   - `server/**` change hole `.github/workflows/server_ci.yml` run hoy.
+3. Workflow Docker Hub-e login kore.
+4. Docker Buildx setup hoy, tarpor Docker image build hoy.
+5. Build successful hole image Docker Hub-e push hoy:
+   - Client image: `DOCKER_USER/todo-client-prod:latest`
+   - Server image: `DOCKER_USER/todo-server-prod:latest`
+6. Kubernetes cluster-e app run korar jonno `manifest/deployment.yml` and `manifest/services.yml` use kora hoy.
+
+Short version:
+
+```text
+Code Push -> GitHub Actions -> Docker Build -> Docker Hub Push -> Kubernetes Deploy
+```
+
+Important CI/CD parts:
+
+| Part | Kaj |
+| --- | --- |
+| GitHub Actions | Automatic build workflow run kore |
+| Dockerfile | Client and server image banay |
+| Docker Hub | Production image store kore |
+| Kubernetes Deployment | Client, server, and MongoDB pod run kore |
+| Kubernetes Service | App-er network access manage kore |
+
+Required GitHub Secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `DOCKER_USER` | Docker Hub username |
+| `DOCKER_PASSWORD` | Docker Hub password or access token |
+
+Note: Current workflow image build and Docker Hub push porjonto automatic. Kubernetes deploy step manually kora jay:
+
+```bash
+kubectl apply -f manifest/deployment.yml
+kubectl apply -f manifest/services.yml
+```
+
 ## API
 
 | Method | Endpoint | Purpose |
