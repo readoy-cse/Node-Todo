@@ -2,6 +2,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
+import os from "os";
 import todoRoutes from "./routes/todoRoutes.js";
 
 dotenv.config();
@@ -36,6 +37,19 @@ app.use(express.json());
  */
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/api/runtime", (_req, res) => {
+  res.json({
+    service: "backend",
+    status: "online",
+    podName: process.env.POD_NAME || process.env.HOSTNAME || os.hostname(),
+    nodeName: process.env.NODE_NAME || "local-machine",
+    namespace: process.env.POD_NAMESPACE || "local",
+    port,
+    database: mongoUri.includes("todo-svc-mongo") ? "todo-svc-mongo" : "local-mongo",
+    uptimeSeconds: Math.floor(process.uptime()),
+  });
 });
 
 /**
