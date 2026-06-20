@@ -388,7 +388,12 @@ function App() {
               <p className="empty-state">Loading todos...</p>
             ) : filteredTodos.length ? (
               filteredTodos.map((todo) => (
-                <article className="task-row" key={todo._id}>
+                <article
+                  className={`task-row ${todo.completed ? "is-done" : ""} ${
+                    todo.timerStartedAt ? "is-running" : ""
+                  }`}
+                  key={todo._id}
+                >
                   {editingId === todo._id ? (
                     <form
                       className="edit-form"
@@ -416,16 +421,26 @@ function App() {
                     </form>
                   ) : (
                     <>
-                      <label className="task-title">
-                        <input
-                          type="checkbox"
-                          checked={todo.completed}
-                          onChange={() => toggleTodo(todo)}
-                        />
+                      <div className="task-title">
+                        <button
+                          className={todo.completed ? "status-toggle done" : "status-toggle"}
+                          type="button"
+                          onClick={() => toggleTodo(todo)}
+                        >
+                          {todo.completed ? "Done" : "Mark done"}
+                        </button>
                         <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
-                      </label>
-                      <span className={todo.completed ? "state-badge done" : "state-badge"}>
-                        {todo.completed ? "Done" : "Active"}
+                      </div>
+                      <span
+                        className={
+                          todo.completed
+                            ? "state-badge done"
+                            : todo.timerStartedAt
+                              ? "state-badge running"
+                              : "state-badge"
+                        }
+                      >
+                        {todo.completed ? "Completed" : todo.timerStartedAt ? "Running" : "Active"}
                       </span>
                       <span className={todo.timerStartedAt ? "time-badge running" : "time-badge"}>
                         {formatTime(getTrackedSeconds(todo))}

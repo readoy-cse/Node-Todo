@@ -303,11 +303,27 @@ h1 {
   align-items: center;
   background: #ffffff;
   border-top: 1px solid #e7edf2;
+  box-shadow: inset 4px 0 0 transparent;
   display: grid;
   gap: 12px;
   grid-template-columns: minmax(220px, 1fr) 100px 110px minmax(300px, auto);
   min-height: 56px;
   padding: 8px 10px;
+}
+
+.task-row.is-running {
+  background: #fffaf0;
+  box-shadow: inset 4px 0 0 #c47a12;
+}
+
+.task-row.is-done {
+  background: #f2faf7;
+  box-shadow: inset 4px 0 0 #16835f;
+}
+
+.task-row.is-done.is-running {
+  background: #fffaf0;
+  box-shadow: inset 4px 0 0 #c47a12;
 }
 
 .task-row:first-child {
@@ -363,18 +379,31 @@ h1 {
   min-width: 0;
 }
 
-.task-title input {
-  height: 18px;
-  width: 18px;
-}
-
 .task-title span {
   overflow-wrap: anywhere;
 }
 
+.status-toggle {
+  background: #eef3f6;
+  border: 1px solid #cbd6df;
+  border-radius: 999px;
+  color: #334155;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.status-toggle.done {
+  background: #16835f;
+  border-color: #16835f;
+  color: #ffffff;
+}
+
 .completed {
-  color: #768293;
-  text-decoration: line-through;
+  color: #345449;
+  font-weight: 700;
 }
 
 .state-badge,
@@ -393,9 +422,14 @@ h1 {
   color: #1f6f5b;
 }
 
+.state-badge.running {
+  background: #fff0d7;
+  color: #a15c07;
+}
+
 .state-badge.done {
-  background: #eef0f3;
-  color: #687487;
+  background: #dff5ed;
+  color: #12684b;
 }
 
 .time-badge {
