@@ -422,13 +422,6 @@ function App() {
                   ) : (
                     <>
                       <div className="task-title">
-                        <button
-                          className={todo.completed ? "status-toggle done" : "status-toggle"}
-                          type="button"
-                          onClick={() => toggleTodo(todo)}
-                        >
-                          {todo.completed ? "Done" : "Mark done"}
-                        </button>
                         <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
                       </div>
                       <span
@@ -440,33 +433,58 @@ function App() {
                               : "state-badge"
                         }
                       >
-                        {todo.completed ? "Completed" : todo.timerStartedAt ? "Running" : "Active"}
+                        {todo.completed ? "Done" : todo.timerStartedAt ? "Running" : "Pending"}
                       </span>
                       <span className={todo.timerStartedAt ? "time-badge running" : "time-badge"}>
                         {formatTime(getTrackedSeconds(todo))}
                       </span>
                       <div className="row-actions">
                         <button
+                          className={todo.completed ? "status-action done" : "status-action"}
+                          type="button"
+                          onClick={() => toggleTodo(todo)}
+                          aria-label={todo.completed ? "Mark task as pending" : "Mark task as done"}
+                          title={todo.completed ? "Mark pending" : "Mark done"}
+                        >
+                          {todo.completed ? "↺" : "✓"}
+                        </button>
+                        <button
                           className={todo.timerStartedAt ? "warning-button" : "success-button"}
                           type="button"
                           onClick={() => updateTimer(todo, todo.timerStartedAt ? "stop" : "start")}
                           disabled={todo.completed && !todo.timerStartedAt}
+                          aria-label={todo.timerStartedAt ? "Stop timer" : "Start timer"}
+                          title={todo.timerStartedAt ? "Stop" : "Start"}
                         >
-                          {todo.timerStartedAt ? "Stop" : "Start"}
+                          {todo.timerStartedAt ? "■" : "▶"}
                         </button>
                         <button
                           className="secondary-button"
                           type="button"
                           onClick={() => updateTimer(todo, "reset")}
                           disabled={!getTrackedSeconds(todo)}
+                          aria-label="Reset timer"
+                          title="Reset"
                         >
-                          Reset
+                          ↻
                         </button>
-                        <button className="secondary-button" type="button" onClick={() => startEditing(todo)}>
-                          Edit
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          onClick={() => startEditing(todo)}
+                          aria-label="Edit task"
+                          title="Edit"
+                        >
+                          ✎
                         </button>
-                        <button className="danger-button" type="button" onClick={() => deleteTodo(todo._id)}>
-                          Delete
+                        <button
+                          className="danger-button"
+                          type="button"
+                          onClick={() => deleteTodo(todo._id)}
+                          aria-label="Delete task"
+                          title="Delete"
+                        >
+                          ×
                         </button>
                       </div>
                     </>

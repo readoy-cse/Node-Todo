@@ -383,24 +383,6 @@ h1 {
   overflow-wrap: anywhere;
 }
 
-.status-toggle {
-  background: #eef3f6;
-  border: 1px solid #cbd6df;
-  border-radius: 999px;
-  color: #334155;
-  flex: 0 0 auto;
-  font-size: 0.78rem;
-  font-weight: 900;
-  min-height: 32px;
-  padding: 0 12px;
-}
-
-.status-toggle.done {
-  background: #16835f;
-  border-color: #16835f;
-  color: #ffffff;
-}
-
 .completed {
   color: #345449;
   font-weight: 700;
@@ -447,6 +429,23 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.row-actions button {
+  align-items: center;
+  display: inline-flex;
+  font-size: 1rem;
+  justify-content: center;
+  min-width: 38px;
+  padding: 0 10px;
+}
+
+.row-actions .status-action {
+  background: #16835f;
+}
+
+.row-actions .status-action.done {
+  background: #64748b;
 }
 
 .row-actions .success-button {
