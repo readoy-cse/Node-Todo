@@ -29,7 +29,3 @@ jobs:
         context: ./client
         push: true
         tags: ${{ secrets.DOCKER_USER }}/todo-client-prod:latest
-    
-    - name: Test
-      run: docker images
-

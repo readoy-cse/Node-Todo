@@ -1,0 +1,16 @@
+---
+# MongoDB Services (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-svc-mongo
+
+spec:
+  type: ClusterIP
+  selector:
+    app: todo-mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017 
+      
