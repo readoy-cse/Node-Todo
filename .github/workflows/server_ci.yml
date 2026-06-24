@@ -29,7 +29,3 @@ jobs:
         context: ./server
         push: true
         tags: ${{ secrets.DOCKER_USER }}/todo-server-prod:latest
-    
-    - name: Test
-      run: docker images
-
