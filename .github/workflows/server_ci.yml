@@ -3,6 +3,7 @@ run-name: ${{ github.actor }} Building Server
 
 on: 
   push:
+    branches: [main]
     paths:
       - server/**
 
