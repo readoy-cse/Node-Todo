@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const API_URL = "http://192.168.32.104:30090/api";
-// const API_URL = "todo-svc-backend:5000/api";
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://192.168.32.104:30090/api" : "/api");
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -15,6 +15,8 @@ function App() {
   const [now, setNow] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [frontendRuntime, setFrontendRuntime] = useState(null);
+  const [backendRuntime, setBackendRuntime] = useState(null);
 
   const filteredTodos = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -32,11 +34,13 @@ function App() {
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - remainingCount;
+  const runningCount = todos.filter((todo) => todo.timerStartedAt).length;
   const progress = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
   const totalTrackedSeconds = todos.reduce((total, todo) => total + getTrackedSeconds(todo), 0);
 
   useEffect(() => {
     fetchTodos();
+    fetchRuntime();
   }, []);
 
   useEffect(() => {
@@ -72,9 +76,9 @@ function App() {
   async function request(path, options = {}) {
     const response = await fetch(`${API_URL}${path}`, {
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      ...options
+      ...options,
     });
 
     if (!response.ok) {
@@ -87,6 +91,24 @@ function App() {
     }
 
     return response.json();
+  }
+
+  async function fetchRuntime() {
+    const [frontendResult, backendResult] = await Promise.allSettled([
+      fetch("/runtime.json").then((response) => {
+        if (!response.ok) throw new Error("Frontend runtime unavailable");
+        return response.json();
+      }),
+      request("/runtime"),
+    ]);
+
+    if (frontendResult.status === "fulfilled") {
+      setFrontendRuntime(frontendResult.value);
+    }
+
+    if (backendResult.status === "fulfilled") {
+      setBackendRuntime(backendResult.value);
+    }
   }
 
   async function fetchTodos() {
@@ -114,7 +136,7 @@ function App() {
       setError("");
       const todo = await request("/todos", {
         method: "POST",
-        body: JSON.stringify({ title: trimmedTitle })
+        body: JSON.stringify({ title: trimmedTitle }),
       });
       setTodos((currentTodos) => [todo, ...currentTodos]);
       setTitle("");
@@ -128,7 +150,7 @@ function App() {
       setError("");
       const updatedTodo = await request(`/todos/${todo._id}`, {
         method: "PATCH",
-        body: JSON.stringify({ completed: !todo.completed })
+        body: JSON.stringify({ completed: !todo.completed }),
       });
       setTodos((currentTodos) =>
         currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
@@ -143,7 +165,7 @@ function App() {
       setError("");
       const updatedTodo = await request(`/todos/${todo._id}`, {
         method: "PATCH",
-        body: JSON.stringify({ timerAction })
+        body: JSON.stringify({ timerAction }),
       });
       setTodos((currentTodos) =>
         currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
@@ -180,7 +202,7 @@ function App() {
       setError("");
       const updatedTodo = await request(`/todos/${todo._id}`, {
         method: "PATCH",
-        body: JSON.stringify({ title: trimmedTitle })
+        body: JSON.stringify({ title: trimmedTitle }),
       });
       setTodos((currentTodos) =>
         currentTodos.map((item) => (item._id === updatedTodo._id ? updatedTodo : item))
@@ -195,7 +217,7 @@ function App() {
     try {
       setError("");
       await request(`/todos/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
       setTodos((currentTodos) => currentTodos.filter((todo) => todo._id !== id));
     } catch (err) {
@@ -215,7 +237,7 @@ function App() {
       await Promise.all(
         completedTodos.map((todo) =>
           request(`/todos/${todo._id}`, {
-            method: "DELETE"
+            method: "DELETE",
           })
         )
       );
@@ -225,45 +247,104 @@ function App() {
     }
   }
 
-  return (
-    <main className="app-shell">
-      <section className="todo-panel">
-        <div className="header-row">
+  function RuntimePanel({ title: panelTitle, data }) {
+    return (
+      <section className="runtime-panel">
+        <div className="panel-heading">
+          <span>{panelTitle}</span>
+          <strong className={data ? "status-dot online" : "status-dot"}>{data?.status || "unknown"}</strong>
+        </div>
+        <dl className="runtime-grid">
           <div>
-            <p className="eyebrow">React + Express + MongoDB</p>
-            <h1>Todo List</h1>
+            <dt>Pod</dt>
+            <dd>{data?.podName || "Not available"}</dd>
           </div>
-          <span className="counter">{remainingCount} left</span>
-        </div>
+          <div>
+            <dt>Node</dt>
+            <dd>{data?.nodeName || "Not available"}</dd>
+          </div>
+          <div>
+            <dt>Namespace</dt>
+            <dd>{data?.namespace || "Not available"}</dd>
+          </div>
+          {data?.database && (
+            <div>
+              <dt>Database</dt>
+              <dd>{data.database}</dd>
+            </div>
+          )}
+        </dl>
+      </section>
+    );
+  }
 
-        <div className="progress-block" aria-label="Todo progress">
-          <div className="progress-copy">
-            <span>{completedCount} done</span>
-            <span>{progress}% complete</span>
-          </div>
-          <div className="progress-track">
-            <span style={{ width: `${progress}%` }} />
-          </div>
+  return (
+    <main className="dashboard-shell">
+      <header className="dashboard-header">
+        <div>
+          <p className="eyebrow">Task Dashboard</p>
+          <h1>Node Todo</h1>
         </div>
+        <button className="refresh-button" type="button" onClick={() => Promise.all([fetchTodos(), fetchRuntime()])}>
+          Refresh
+        </button>
+      </header>
 
-        <div className="time-summary">
-          <span>Total tracked</span>
+      <section className="metrics-grid" aria-label="Todo metrics">
+        <div>
+          <span>Total Tasks</span>
+          <strong>{todos.length}</strong>
+        </div>
+        <div>
+          <span>Active</span>
+          <strong>{remainingCount}</strong>
+        </div>
+        <div>
+          <span>Completed</span>
+          <strong>{completedCount}</strong>
+        </div>
+        <div>
+          <span>Timers Running</span>
+          <strong>{runningCount}</strong>
+        </div>
+        <div>
+          <span>Total Tracked</span>
           <strong>{formatTime(totalTrackedSeconds)}</strong>
         </div>
+      </section>
 
-        <form className="todo-form" onSubmit={addTodo}>
+      <section className="workspace-grid">
+        <aside className="control-panel">
+          <div className="panel-heading">
+            <span>Task Controls</span>
+            <strong>{progress}% complete</strong>
+          </div>
+
+          <div className="progress-track" aria-label="Todo progress">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+
+          <form className="todo-form" onSubmit={addTodo}>
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Add a new task"
+              maxLength="120"
+              aria-label="New todo title"
+            />
+            <button type="submit">Add</button>
+          </form>
+
           <input
-            type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Add a new task"
-            maxLength="120"
-            aria-label="New todo title"
+            className="search-input"
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search tasks"
+            aria-label="Search todos"
           />
-          <button type="submit">Add</button>
-        </form>
 
-        <div className="toolbar">
           <div className="filters" aria-label="Todo filters">
             {["all", "active", "completed"].map((name) => (
               <button
@@ -276,108 +357,157 @@ function App() {
               </button>
             ))}
           </div>
+
           <button
             className="clear-button"
             type="button"
             onClick={clearCompleted}
             disabled={!completedCount}
           >
-            Clear done
+            Clear completed
           </button>
-        </div>
+        </aside>
 
-        <input
-          className="search-input"
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search tasks"
-          aria-label="Search todos"
-        />
+        <section className="task-panel">
+          <div className="panel-heading">
+            <span>Task Queue</span>
+            <strong>{filteredTodos.length} visible</strong>
+          </div>
 
-        {error && <p className="error">{error}</p>}
+          {error && <p className="error">{error}</p>}
 
-        <div className="todo-list">
-          {isLoading ? (
-            <p className="empty-state">Loading todos...</p>
-          ) : filteredTodos.length ? (
-            filteredTodos.map((todo) => (
-              <article className="todo-item" key={todo._id}>
-                {editingId === todo._id ? (
-                  <form
-                    className="edit-form"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      saveTodoTitle(todo);
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={editingTitle}
-                      onChange={(event) => setEditingTitle(event.target.value)}
-                      maxLength="120"
-                      aria-label="Edit todo title"
-                      autoFocus
-                    />
-                    <div className="item-actions">
-                      <button type="submit">Save</button>
-                      <button className="ghost-button" type="button" onClick={cancelEditing}>
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <label>
+          <div className="task-list">
+            <div className="task-row task-head">
+              <span>Task</span>
+              <span>Status</span>
+              <span>Tracked</span>
+              <span>Actions</span>
+            </div>
+
+            {isLoading ? (
+              <p className="empty-state">Loading todos...</p>
+            ) : filteredTodos.length ? (
+              filteredTodos.map((todo) => (
+                <article
+                  className={`task-row ${todo.completed ? "is-done" : ""} ${
+                    todo.timerStartedAt ? "is-running" : ""
+                  }`}
+                  key={todo._id}
+                >
+                  {editingId === todo._id ? (
+                    <form
+                      className="edit-form"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        saveTodoTitle(todo);
+                      }}
+                    >
                       <input
-                        type="checkbox"
-                        checked={todo.completed}
-                        onChange={() => toggleTodo(todo)}
+                        type="text"
+                        value={editingTitle}
+                        onChange={(event) => setEditingTitle(event.target.value)}
+                        maxLength="120"
+                        aria-label="Edit todo title"
+                        autoFocus
                       />
-                      <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
-                    </label>
-                    <div className="time-row">
+                      <span>Editing</span>
+                      <span>{formatTime(getTrackedSeconds(todo))}</span>
+                      <div className="row-actions">
+                        <button type="submit">Save</button>
+                        <button className="secondary-button" type="button" onClick={cancelEditing}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="task-title">
+                        <span className={todo.completed ? "completed" : ""}>{todo.title}</span>
+                      </div>
+                      <span
+                        className={
+                          todo.completed
+                            ? "state-badge done"
+                            : todo.timerStartedAt
+                              ? "state-badge running"
+                              : "state-badge"
+                        }
+                      >
+                        {todo.completed ? "Done" : todo.timerStartedAt ? "Running" : "Pending"}
+                      </span>
                       <span className={todo.timerStartedAt ? "time-badge running" : "time-badge"}>
                         {formatTime(getTrackedSeconds(todo))}
                       </span>
-                      <button
-                        className={todo.timerStartedAt ? "pause-button" : "start-button"}
-                        type="button"
-                        onClick={() => updateTimer(todo, todo.timerStartedAt ? "stop" : "start")}
-                        disabled={todo.completed && !todo.timerStartedAt}
-                      >
-                        {todo.timerStartedAt ? "Stop" : "Start"}
-                      </button>
-                      <button
-                        className="ghost-button"
-                        type="button"
-                        onClick={() => updateTimer(todo, "reset")}
-                        disabled={!getTrackedSeconds(todo)}
-                      >
-                        Reset
-                      </button>
-                    </div>
-                    <div className="item-actions">
-                      <button
-                        className="ghost-button"
-                        type="button"
-                        onClick={() => startEditing(todo)}
-                      >
-                        Edit
-                      </button>
-                      <button type="button" onClick={() => deleteTodo(todo._id)}>
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </article>
-            ))
-          ) : (
-            <p className="empty-state">No todos here yet.</p>
-          )}
-        </div>
+                      <div className="row-actions">
+                        <button
+                          className={todo.completed ? "status-action done" : "status-action"}
+                          type="button"
+                          onClick={() => toggleTodo(todo)}
+                          aria-label={todo.completed ? "Mark task as pending" : "Mark task as done"}
+                          title={todo.completed ? "Mark pending" : "Mark done"}
+                        >
+                          {todo.completed ? "↺" : "✓"}
+                        </button>
+                        <button
+                          className={todo.timerStartedAt ? "warning-button" : "success-button"}
+                          type="button"
+                          onClick={() => updateTimer(todo, todo.timerStartedAt ? "stop" : "start")}
+                          disabled={todo.completed && !todo.timerStartedAt}
+                          aria-label={todo.timerStartedAt ? "Stop timer" : "Start timer"}
+                          title={todo.timerStartedAt ? "Stop" : "Start"}
+                        >
+                          {todo.timerStartedAt ? "■" : "▶"}
+                        </button>
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          onClick={() => updateTimer(todo, "reset")}
+                          disabled={!getTrackedSeconds(todo)}
+                          aria-label="Reset timer"
+                          title="Reset"
+                        >
+                          ↻
+                        </button>
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          onClick={() => startEditing(todo)}
+                          aria-label="Edit task"
+                          title="Edit"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          className="danger-button"
+                          type="button"
+                          onClick={() => deleteTodo(todo._id)}
+                          aria-label="Delete task"
+                          title="Delete"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </article>
+              ))
+            ) : (
+              <p className="empty-state">No todos match this view.</p>
+            )}
+          </div>
+        </section>
       </section>
+
+      <footer className="dashboard-footer" aria-label="Operator diagnostics">
+        <div className="footer-heading">
+          <span>Operator diagnostics</span>
+          <strong>Pod and node metadata</strong>
+        </div>
+        <section className="status-strip">
+          <RuntimePanel title="Frontend Runtime" data={frontendRuntime} />
+          <RuntimePanel title="Backend Runtime" data={backendRuntime} />
+        </section>
+      </footer>
     </main>
   );
 }
