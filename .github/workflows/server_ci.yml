@@ -14,6 +14,10 @@ jobs:
     steps: 
     - uses: actions/checkout@v4
 
+    - name: Create new Tag at ENV
+      run: |
+        echo "ENV=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v4
       with:
@@ -28,4 +32,18 @@ jobs:
       with:
         context: ./server
         push: true
-        tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:latest
+        tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}
+    
+    - name: Modify server deployment
+      run: |
+        sed -i \
+        "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:.*| \
+         ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}|" \
+         manifest/deployments/server-deployment.yml
+
+    - name: Push (server) Manifest File to GitHub
+      run: |
+        git config user.email ${{ secrets.EMAIL }}
+        git add .
+        git commit -m "Backend deploy tag ${{ env.TAG }}"
+        git push -u origin manifest

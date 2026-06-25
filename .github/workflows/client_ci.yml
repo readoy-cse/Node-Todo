@@ -43,11 +43,10 @@ jobs:
 
         cat manifest/deployments/client-deployment.yml
       
-    - name: Push Manifest File 
+    - name: Push (client) Manifest File to GitHub
       run : |
         git config user.email ${{ secrets.EMAIL }}
         git config user.name "readoy-cse"
-        git config --add safe.directory .
         git add .
-        git commit -m "deploy tag ${{ env.TAG }}"
-        git push -u origin main
+        git commit -m "Frontend deploy tag ${{ env.TAG }}"
+        git push -u origin manifest
