@@ -38,7 +38,12 @@ jobs:
 
     - name: Chenge Deploy Tag
       run : |
+        sed -i "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}|" manifest/deployments/client-deployment.yml
+      
+    - name: Push Manifest File 
+      run : |
         git config user.email ${{ secrets.EMAIL }}
         git config user.name "readoy-cse"
         git config --add safe.directory .
-        sed -i "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}" manifest/deployments/client-deployment.yml
+        git add .
+        git commit -m "deploy tag ${{ env.TAG }}"
