@@ -16,7 +16,7 @@ jobs:
 
     - name: Create new Tag at ENV
       run: |
-        echo "ENV=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v4
