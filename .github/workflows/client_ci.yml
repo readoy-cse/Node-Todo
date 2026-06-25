@@ -16,8 +16,6 @@ jobs:
     
     - name: Create New TAG at ENV
       run: |
-        ls
-        ls -la
         echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
     - name: Log in to Docker Hub
@@ -42,6 +40,8 @@ jobs:
         "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*| \
         ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}|" \
          manifest/deployments/client-deployment.yml
+
+        cat manifest/deployments/client-deployment.yml
       
     - name: Push Manifest File 
       run : |
@@ -50,3 +50,4 @@ jobs:
         git config --add safe.directory .
         git add .
         git commit -m "deploy tag ${{ env.TAG }}"
+        git push -u origin main
