@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: todo-server
-        image: sakibtalukqder/todo-server-prod:latest
+        image:   sakibtalukqder/todo-server-prod:d2991b7
         ports:
         - containerPort: 5000
         env:
