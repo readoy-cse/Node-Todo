@@ -4,8 +4,8 @@ run-name: ${{ github.actor }} Building client
 on: 
   push:
     branches: [main]
-    # paths:
-    #   - client/**
+    paths:
+      - client/**
 
 jobs:
   build-client:
