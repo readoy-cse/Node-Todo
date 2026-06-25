@@ -39,5 +39,6 @@ jobs:
     - name: Chenge Deploy Tag
       run : |
         git config user.email ${{ secrets.EMAIL }}
-        git config --global --add safe.directory .
-        sed -i "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}" manifest/deployment/client-deployment.yml
+        git config user.name "readoy-cse"
+        git config --add safe.directory .
+        sed -i "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}" manifest/deployments/client-deployment.yml
