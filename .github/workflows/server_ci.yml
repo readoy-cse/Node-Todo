@@ -33,17 +33,25 @@ jobs:
         context: ./server
         push: true
         tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}
+
+    - name: Checkout Manifest
+      uses: actions/checkout@v4
+      with:
+        ref: manifest
+        path: k8s
     
     - name: Modify server deployment
       run: |
         sed -i \
         "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:.*| \
          ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}|" \
-         manifest/deployments/server-deployment.yml
+         k8s/manifest/deployments/server-deployment.yml 
 
     - name: Push (server) Manifest File to GitHub
       run: |
+        cd k8s 
         git config user.email ${{ secrets.EMAIL }}
         git add .
         git commit -m "Backend deploy tag ${{ env.TAG }}"
         git push -u origin manifest
+        tree manifest
