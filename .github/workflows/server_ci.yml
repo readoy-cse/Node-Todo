@@ -51,6 +51,7 @@ jobs:
       run: |
         cd k8s 
         git config user.email ${{ secrets.EMAIL }}
+        git config user.name readoy-cse
         git add .
         git commit -m "Backend deploy tag ${{ env.TAG }}"
         git push -u origin manifest
