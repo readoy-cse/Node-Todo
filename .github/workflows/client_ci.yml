@@ -14,10 +14,11 @@ jobs:
     steps: 
     - uses: actions/checkout@v4
     
-    - name: run test to log sha
+    - name: Create New TAG at ENV
       run: |
+        ls
+        ls -la
         echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-        echo "${{ env.TAG }}"
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v4
@@ -34,3 +35,9 @@ jobs:
         context: ./client
         push: true
         tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}
+
+    - name: Chenge Deploy Tag
+      run : |
+        git config user.email ${{ secrets.EMAIL }}
+        git config --global --add safe.directory .
+        sed -i "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}" manifest/deployment/client-deployment.yml
