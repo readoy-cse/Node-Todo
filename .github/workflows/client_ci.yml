@@ -16,7 +16,8 @@ jobs:
     
     - name: run test to log sha
       run: |
-        echo "${{ github.sha }}"
+        echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        echo "${{ env.TAG }}"
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v4
@@ -32,4 +33,4 @@ jobs:
       with:
         context: ./client
         push: true
-        tags: ${{ secrets.DOCKER_USER }}/todo-client-prod:latest
+        tags: ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}
