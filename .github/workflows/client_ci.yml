@@ -39,14 +39,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: manifest
-        path: k8s
+        path: manifest
 
     - name: Chenge Deploy Tag
       run : |
         sed -i \
         "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:.*|\
         ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_CLIENT }}:${{ env.TAG }}|" \
-         k8s/manifest/deployments/client-deployment.yml 
+         manifest/deployments/client-deployment.yml 
       
     - name: Push (client) Manifest File to GitHub
       run : |

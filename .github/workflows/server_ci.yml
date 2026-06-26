@@ -38,14 +38,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: manifest
-        path: k8s
+        path: manifest
     
     - name: Modify server deployment
       run: |
         sed -i \
         "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:.*|\
          ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}|" \
-         k8s/manifest/deployments/server-deployment.yml 
+         manifest/deployments/server-deployment.yml 
 
     - name: Push (server) Manifest File to GitHub
       run: |
