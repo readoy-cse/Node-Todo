@@ -43,7 +43,7 @@ jobs:
     - name: Modify server deployment
       run: |
         sed -i \
-        "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:.*| \
+        "s|${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:.*|\
          ${{ secrets.DOCKER_USER }}/${{ secrets.REPO_SERVER }}:${{ env.TAG }}|" \
          k8s/manifest/deployments/server-deployment.yml 
 
