@@ -50,10 +50,10 @@ jobs:
       
     - name: Push (client) Manifest File to GitHub
       run : |
-        cd k8s
+        cd manifest
         git config user.email ${{ secrets.EMAIL }}
         git config user.name "readoy-cse"
         git add .
         git commit -m "Frontend deploy tag ${{ env.TAG }}"
         git push -u origin manifest
-        tree manifest
+        tree
