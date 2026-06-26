@@ -25,8 +25,8 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: VITE_API_URL
-          value: "http://todo-svc-backend:5000/api"
+        # - name: VITE_API_URL
+        #   value: "http://todo-svc-backend:5000/api"
 
         - name: POD_NAME
           valueFrom:
