@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: todo-client
-        image: sakibtalukqder/todo-client-prod:2ea7509
+        image: sakibtalukqder/todo-client-prod:3e8ddeb
         ports:
         - containerPort: 80
         env:
