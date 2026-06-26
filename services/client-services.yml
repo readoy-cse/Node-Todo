@@ -8,11 +8,10 @@ metadata:
     app: todo-frontend
 
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: todo-frontend
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30080
