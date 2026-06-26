@@ -21,18 +21,23 @@ spec:
     spec:
       containers:
       - name: todo-client
-        image:   sakibtalukqder/todo-client-prod:a0124b6
+        image: sakibtalukqder/todo-client-prod:a0124b6
         ports:
         - containerPort: 80
         env:
+        - name: VITE_API_URL
+          value: "http://todo-svc-backend:5000/api"
+
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+              
         - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
