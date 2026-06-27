@@ -3,9 +3,6 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const API_URL = "/api" ;
-// const API_URL = import.meta.env.VITE_API_URL ;
-
-  console.log(import.meta.env.API_URL)
 
 function App() {
   const [todos, setTodos] = useState([]);
