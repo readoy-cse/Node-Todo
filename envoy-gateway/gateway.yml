@@ -7,5 +7,5 @@ spec:
   listeners:
   - name: http
     protocol: HTTP
-    port: 8088
+    port: 80
     
